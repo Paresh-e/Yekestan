@@ -94,7 +94,22 @@ bool login_teacher() {
 bool login_student() {
     system("cls");
     cout<<"========Login========"<<endl;
-    return true;
+    string id_e;
+    cout<<"Please enter your id: ";
+    cin>>id_e;
+    if (!check_if_Id_correct(id_e)) {
+        return false;
+    }//format
+    string pass_e;
+    cout<<"Please enter your password: ";
+    cin>>pass_e;
+    if (!check_if_the_pass_is_correct(pass_e)) {
+        return false;
+    }//format
+    if (authenticate(id_e,pass_e,"Login-S.txt")) {
+        return true;
+    }
+    return false;
 }
 bool check_if_name_correct(string& str) {
     if (str.length() > 20 || str.length() < 8) {
@@ -148,8 +163,6 @@ bool signup_teacher() {
     return true;
 }
 bool signup_student() {
-    system("cls");
-    cout<<"========Signup========"<<endl;
     system("cls");
     cout<<"========Signup========"<<endl;
     string name;
@@ -223,10 +236,7 @@ void menu() {
 
                 }
                 goto back;
-
-
             }
-
         }
         if(val==2) {
             system("cls");
@@ -239,17 +249,28 @@ void menu() {
                 cin>>val1;
                 if(val1==1) {
                     if (login_student()) {
+                        cout<<"=========Login=========="<<endl;
+                        cout<<"Loged in successfully"<<endl;
                         break;
                     }
-                }
-                else if(val1==2) {
-                    if (signup_student()) {
-                        break;
-                    }
-                }
-                else if(val1==3) {
+                    cout<<"wrong"<<endl;
+                    _sleep(1000);
                     goto back;
                 }
+                if(val1==2) {
+                    if (signup_student()) {
+                        system("cls");
+                        cout<<"========Signup========"<<endl;
+                        cout<<"signed up successfully"<<endl;
+                        _sleep(1000);
+                        goto back;
+                    }
+                    cout<<"wrong"<<endl;
+                    _sleep(1000);
+                    goto back;
+
+                }
+                goto back;
             }
         }
         if(val==3) {
@@ -262,9 +283,8 @@ void menu() {
             cout<<"Bye!Bye!"<<endl;
             break;
         }
+        return;
     }
-
-
 }
 
 
