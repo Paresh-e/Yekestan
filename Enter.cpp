@@ -2,14 +2,14 @@
 //1-menu
 //
 //
-#include <algorithm>
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <vector>
 #include <sstream>
-#include <bits/atomic_base.h>
+#include <vector>
+#include <algorithm>
+#include "Teacher.h"
 using namespace std;
+string current_Id ;
 bool check_if_the_pass_is_correct(string& str) {
     if (str.length() > 20 || str.length() < 8) {
         return false;
@@ -47,17 +47,17 @@ bool authenticate(const std::string& id, const std::string& password, const std:
             stringstream ss(line);
             string fileId, filePassword;
 
-            // استخراج ID
+
             if (getline(ss, fileId, ' ')) {
-                // استخراج پسورد
-                if (getline(ss, filePassword, '|')) {
-                    // حذف فاصله‌های اضافی از پسورد
+
+                if (getline(ss, filePassword, ' ')) {
                     filePassword.erase(remove_if(filePassword.begin(), filePassword.end(), ::isspace), filePassword.end());
 
-                    // مقایسه ID و پسورد
+
                     if (fileId == id && filePassword == password) {
+                        current_Id = id ;
                         file.close();
-                        return true; // ورود موفقیت‌آمیز
+                        return true;
                     }
                 }
             }
@@ -153,7 +153,7 @@ bool signup_teacher() {
     fstream file;
     file.open("Login-T.txt", ios::app);
     if (file.is_open()) {
-        file<<Id<<" "<<password<<"|"<<name<<" "<<family<<endl;
+        file<<Id<<" "<<password<<" "<<name<<" "<<family<<endl;
         file.close();
     }else {
         cout<<"File could not be opened"<<endl;
@@ -184,7 +184,7 @@ bool signup_student() {
     fstream file;
     file.open("Login-S.txt", ios::app);
     if (file.is_open()) {
-        file<<Id<<" "<<password<<"|"<<name<<" "<<family<<endl;
+        file<<Id<<" "<<password<<" "<<name<<" "<<family<<endl;
         file.close();
     }else {
         cout<<"File could not be opened"<<endl;
@@ -194,6 +194,105 @@ bool signup_student() {
     return true;
 
 }
+vector<string> splitString(const string& str) {
+    vector<string> words;
+    stringstream ss(str);
+    string word;
+    while (ss >> word) {
+        // cout<<word<<" ";
+        words.push_back(word);
+    }
+    return words;
+}
+
+void teacher_menu() {
+    fstream file;
+    file.open("Login-T.txt", ios::in);
+    Teacher * current;
+    if (file.is_open()) {
+        string line;
+        vector<string> all;
+        getline(file, line);
+        all = splitString(line);
+        while (all.at(0)!=current_Id) {
+            getline(file, line);
+            all = splitString(line);
+        }
+        if (all.at(0)==current_Id) {
+            current = new Teacher(all.at(0),all.at(1),all.at(2),all.at(3));
+        }else {
+            cout<<"something bad happened"<<endl;
+            return;
+        }
+        file.close();
+    }
+    else {
+        cout<<"file could not be opened"<<endl;
+        return;
+    }
+    back :
+    system("cls");
+        cout<<"========Teacher Menu======"<<endl;
+    cout<<"1. creat a lesson"<<endl;
+    cout<<"2. list of my lessons"<<endl;
+    cout<<"3. Home works"<<endl;
+    cout<<"4. Exit"<<endl;
+    int val = 0 ;
+    cin>>val;
+    if (val == 1) {
+        system("cls");
+        cout<<"========Teacher Menu -> creating Lesson======"<<endl;
+        string name;
+        cout<<"Enter Lesson`s name:"<<endl;
+        cin>>name;
+        int capacity;
+        cout<<"Enter Lesson`s capacity:"<<endl;
+        cin>>capacity;
+        current->addLesson(name,capacity);
+        system("cls");
+        cout<<"========Teacher Menu -> creating Lesson======"<<endl;
+        cout<<"Lesson created"<<endl;
+        _sleep(1000);
+        goto back;
+    }
+    if (val == 2) {
+        system("cls");
+        cout<<"========Teacher Menu======"<<endl;
+        cout<<"MyLessons: ";
+        fstream file2;
+        file2.open("Lesson.txt", ios::in);
+        string line1;
+        vector<string> all;
+        vector<string> temp;
+        while (getline(file2, line1)) {
+            all = splitString(line1);
+            if (all.at(1)==current_Id) {
+                temp.push_back(all[0]);
+            }
+        }
+        for (int i = 0;i < temp.size();i++) {
+            cout<<temp[i]<<" ";
+        }
+        cout<<endl;
+        file2.close();
+        _sleep(4000);
+        goto back;
+    }
+    if (val == 3) {
+        system("cls");
+        cout<<"Home works"<<endl;
+        cout<<"NOT YET "<<endl;
+        _sleep(4000);
+        goto back;
+    }
+    goto back;
+}
+void student_menu() {
+    system("cls");
+    cout<<"========Student Menu======"<<endl;
+
+}
+
 int menu() {
     back:
     system("cls");
@@ -216,7 +315,7 @@ int menu() {
                 cin>>val1;
                 if(val1==1) {
                     if (login_teacher()) {
-                        cout<<"loged"<<endl;
+                        teacher_menu();
                         return 1;
                     }
                     cout<<"wrong"<<endl;
@@ -233,7 +332,6 @@ int menu() {
                     cout<<"wrong"<<endl;
                     _sleep(1000);
                     goto back;
-
                 }
                 goto back;
             }
@@ -249,8 +347,8 @@ int menu() {
                 cin>>val1;
                 if(val1==1) {
                     if (login_student()) {
-                        cout<<"=========Login=========="<<endl;
-                        cout<<"Loged in successfully"<<endl;
+
+                        student_menu();
                         return 2;
                     }
                     cout<<"wrong"<<endl;
@@ -297,7 +395,9 @@ int menu() {
     }
     return 0;
 }
-
+int main() {
+    int temp = menu();
+}
 
 
 
