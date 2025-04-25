@@ -194,7 +194,7 @@ bool signup_student() {
     return true;
 
 }
-void menu() {
+int menu() {
     back:
     system("cls");
     cout<<"========Menu========"<<endl;
@@ -217,7 +217,7 @@ void menu() {
                 if(val1==1) {
                     if (login_teacher()) {
                         cout<<"loged"<<endl;
-                        return;
+                        return 1;
                     }
                     cout<<"wrong"<<endl;
                     _sleep(1000);
@@ -251,7 +251,7 @@ void menu() {
                     if (login_student()) {
                         cout<<"=========Login=========="<<endl;
                         cout<<"Loged in successfully"<<endl;
-                        break;
+                        return 2;
                     }
                     cout<<"wrong"<<endl;
                     _sleep(1000);
@@ -276,15 +276,26 @@ void menu() {
         if(val==3) {
             system("cls");
             cout<<"========Admin========"<<endl;
+            string Id;
+            string password;
+            cout<<"Enter your ID:"<<endl;
+            cin>>Id;
+            cout<<"Enter your password:"<<endl;
+            cin>>password;
+            if (Id == "1111" && password == "913") {
+                system("cls");
+                cout<<"========Admin========"<<endl;
+                cout<<"Welcome to admin panel"<<endl;
+                return 3;
+            }
             break;
         }
-        if(val==4) {
-            system("cls");
-            cout<<"Bye!Bye!"<<endl;
-            break;
-        }
-        return;
+        system("cls");
+        cout<<"Bye!Bye!"<<endl;
+        _sleep(1000);
+        return 0;
     }
+    return 0;
 }
 
 
@@ -292,6 +303,3 @@ void menu() {
 
 
 
-int main() {
-    menu();
-}
