@@ -7,6 +7,9 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <string>
+#include "Lesson.h"
+#include "Student.h"
 #include "Teacher.h"
 using namespace std;
 string current_Id ;
@@ -179,7 +182,7 @@ bool signup_student() {
     if (!check_if_the_pass_is_correct(password)) {
         return false;
     }
-    srand(time(NULL));
+    srand(time(nullptr));
     int Id = (rand() % 100000) + 100000;
     fstream file;
     file.open("Login-S.txt", ios::app);
@@ -266,8 +269,8 @@ void teacher_menu() {
         vector<string> temp;
         while (getline(file2, line1)) {
             all = splitString(line1);
-            if (all.at(1)==current_Id) {
-                temp.push_back(all[0]);
+            if (all.at(2)==current_Id) {
+                temp.push_back(all[1]);
             }
         }
         for (int i = 0;i < temp.size();i++) {
@@ -285,14 +288,144 @@ void teacher_menu() {
         _sleep(4000);
         goto back;
     }
-    goto back;
+    exit(0);
+
 }
+bool deleteLine(const string& filename, int lineToDelete) ;
 void student_menu() {
+    fstream file;
+    file.open("Login-S.txt", ios::in);
+    Student * current;
+    if (file.is_open()) {
+        string line;
+        vector<string> all;
+        getline(file, line);
+        all = splitString(line);
+        while (all.at(0)!=current_Id) {
+            getline(file, line);
+            all = splitString(line);
+        }
+        if (all.at(0)==current_Id) {
+            current = new Student(all.at(0),all.at(1),all.at(2),all.at(3));
+        }else {
+            cout<<"something bad happened"<<endl;
+            file.close();
+            return;
+
+        }
+        file.close();
+    }else {
+        cout<<"file could not be opened"<<endl;
+        return;
+    }
+    back :
     system("cls");
     cout<<"========Student Menu======"<<endl;
+    cout<<"1. My lessons in this term"<<endl;
+    cout<<"2. add lessons"<<endl;
+    cout<<"3. Home works";
+    cout<<"4. Exit"<<endl;
+    int val = 0 ;
+    cin>>val;
+    if (val == 1) {
 
+    }
+    if (val == 2) {
+        system("cls");
+        cout<<"========Student Menu -> adding Lessons======"<<endl;
+        fstream file2;
+        file2.open("Lesson.txt", ios::in);
+        vector<vector<string>> Leson;
+        if (file2.is_open()) {
+            vector<string> all;
+            int count = 1 ;
+            string line;
+            while (getline(file2, line)) {
+                all = splitString(line);
+                Leson.push_back(all);
+                cout<<count++<<". "<<all.at(1)<<"("<<all.at(0)<<") ";
+                fstream file3;
+                file3.open("Login-T.txt", ios::in);
+                if (file3.is_open()) {
+                    string line1;
+                    string name_T;
+                    vector<string> teacher;
+                    while (getline(file3, line1)) {
+                        teacher = splitString(line1);
+                        if (all.at(2)==teacher.at(0)) {
+                            name_T = "|"+teacher.at(2)+ " "+teacher.at(3)+"| ";
+                            break;
+                        }
+                    }
+                    cout<<name_T<<all.at(3)<<"/"<<all.at(4)<<endl;
+                }else {
+                    cout<<"something bad happened"<<endl;
+                    file3.close();
+                    return;
+                }
+
+            }
+        }
+        else {
+            cout<<"file could not be opened"<<endl;
+            return;
+        }
+        cout<<"Choose a Lesson: ";
+        int val1 =0 ;
+        cin>>val1;
+        current->addLesson(Leson[val1 -1].at(1),Leson[val1 -1].at(0));
+        file2.close();
+        deleteLine("Lesson.txt",val1);
+        file2.open("Lesson.txt", ios::app);
+        // cout<<Leson.at(val1-1).at(0)<<" "<<Leson[val1-1].at(1)<<" "<<Leson[val1-1].at(2)<<" "
+        // <<stoi(Leson[val1-1].at(3))+1<<" "<<Leson[val1-1].at(4)<<" "<<Leson[val1-1].at(5)
+        // <<" "<<Leson[val1-1].at(6)<<endl;
+        // file2.close();
+        file2<<Leson[val1-1].at(0)<<" "<<Leson[val1-1].at(1)<<" "<<Leson[val1-1].at(2)<<" "
+        <<Leson[val1-1].at(3)<<" "<<stoi(Leson[val1-1].at(4))+1<<" "<<Leson[val1-1].at(5)
+        <<" "<<Leson[val1-1].at(6)<<endl;
+        file2.close();
+        cout<<"Lessons have been added"<<endl;
+    }
 }
+bool deleteLine(const string& filename, int lineToDelete) {
+    ifstream inputFile(filename);
+    if (!inputFile.is_open()) {
+        cerr << "Could not open file for reading: " << filename << endl;
+        return false;
+    }
 
+    ofstream tempFile("temp.txt");
+    if (!tempFile.is_open()) {
+        cerr << "Could not open temporary file for writing." <<endl;
+        inputFile.close();
+        return false;
+    }
+
+    string line;
+    int currentLine = 1;
+    while (getline(inputFile, line)) {
+        if (currentLine != lineToDelete) {
+            tempFile << line << endl;
+        }
+        currentLine++;
+    }
+
+    inputFile.close();
+    tempFile.close();
+
+    if (remove(filename.c_str()) != 0) {
+        cerr << "Error deleting original file." << std::endl;
+        return false;
+    }
+
+    if (rename("temp.txt", filename.c_str()) != 0) {
+        cerr << "Error renaming temporary file." << std::endl;
+        return false;
+    }
+
+    return true;
+}
 int menu() {
     back:
     system("cls");
