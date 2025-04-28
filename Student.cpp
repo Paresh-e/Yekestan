@@ -15,7 +15,7 @@ void Student::addLesson(string _name , string _ID) {
     fstream file;
     file.open("Lessons_of_student.txt", ios::app);
     if (file.is_open()) {
-        file<<this->getID()<<" "<<_name<<" ("<<_ID<<")"<<endl;
+        file<<this->getID()<<" "<<_name<<" ("<<_ID<<")"<<" 0"<<" 0"<<endl;
     }
 
 

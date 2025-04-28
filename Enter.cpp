@@ -13,6 +13,7 @@
 #include "Teacher.h"
 using namespace std;
 string current_Id ;
+bool deleteLine(const string& filename, int lineToDelete) ;
 bool check_if_the_pass_is_correct(string& str) {
     if (str.length() > 20 || str.length() < 8) {
         return false;
@@ -163,6 +164,7 @@ bool signup_teacher() {
         return false;
     }
     cout<<"Your ID:"<<Id<<endl;
+    _sleep(5000);
     return true;
 }
 bool signup_student() {
@@ -259,27 +261,82 @@ void teacher_menu() {
         goto back;
     }
     if (val == 2) {
+        back3:
         system("cls");
         cout<<"========Teacher Menu======"<<endl;
-        cout<<"MyLessons: ";
+        cout<<"MyLessons: "<<endl;
         fstream file2;
         file2.open("Lesson.txt", ios::in);
         string line1;
         vector<string> all;
         vector<string> temp;
+        vector<string> temp2;
         while (getline(file2, line1)) {
             all = splitString(line1);
             if (all.at(2)==current_Id) {
-                temp.push_back(all[1]);
+                temp.push_back(all.at(1));
+                temp2.push_back(all.at(0));
             }
         }
-        for (int i = 0;i < temp.size();i++) {
-            cout<<temp[i]<<" ";
+        int i = 0;
+        for (;i < temp.size();i++) {
+            cout<<i<<". "<<temp[i]<<"("<<temp2[i]<<")"<<endl;
         }
-        cout<<endl;
+        cout<<i<<". Exit"<<endl;
+        int val3;
+        cout<<"choose:"<<endl;
+        cin>>val3;
+        if (val3 >= i || val3 < 0 || i==0) {
+            goto back;
+        }
+        back4:
+        system("cls");
+        cout<<"========Teacher Menu======"<<endl;
+        cout<<temp.at(val3)<<": "<<endl;
+        fstream file3;
+        string line2;
+        vector<string> all2;
+        vector<int> temp3;
+        vector<vector<string>> all_students;
+        file3.open("Lessons_of_student.txt", ios::in);
+        int line_counter = 0 ;
+        int count = 1 ;
+        while (getline(file3, line2)) {
+            line_counter++;
+            all2 = splitString(line2);
+            if (all2.at(1)==temp.at(val3)) {
+                string tem = all2.at(2).substr(1,5);
+                if (tem == temp2.at(val3)) {
+                    cout<<count++<<". "<<all2.at(0)<<endl;
+                    all_students.push_back(all2);
+                    temp3.push_back(line_counter);
+                }
+            }
+        }
+        cout<<"0. Exit :"<<endl;
+        cout<<"choose to set mid or final score :"<<endl;
         file2.close();
-        _sleep(4000);
-        goto back;
+        int val24;
+        cin>>val24;
+        if (val24 == 0 | val24 >= count) {
+            goto back3;
+        }
+        system("cls");
+        cout<<"========Teacher Menu======"<<endl;
+        cout<<"Mid: ";
+        float score1;
+        float score2;
+        cin>>score1;
+        cout<<"Final: ";
+        cin>>score2;
+        file3.close();
+        deleteLine("Lessons_of_student.txt",temp3.at(val24-1));
+        file3.open("Lessons_of_student.txt", ios::app);
+        file3<<all_students.at(val24-1).at(0)<<" "<<all_students.at(val24-1).at(1)<<" "<<all_students.at(val24-1).at(2)<<" "<<score1<<" "<<score2<<endl;
+        file3.close();
+        cout<<"Done!"<<endl;
+        _sleep(1500);
+        goto back4;
     }
     if (val == 3) {
         system("cls");
@@ -291,7 +348,7 @@ void teacher_menu() {
     exit(0);
 
 }
-bool deleteLine(const string& filename, int lineToDelete) ;
+
 void student_menu() {
     fstream file;
     file.open("Login-S.txt", ios::in);
@@ -323,11 +380,44 @@ void student_menu() {
     cout<<"========Student Menu======"<<endl;
     cout<<"1. My lessons in this term"<<endl;
     cout<<"2. add lessons"<<endl;
-    cout<<"3. Home works";
+    cout<<"3. Home works"<<endl;
     cout<<"4. Exit"<<endl;
     int val = 0 ;
     cin>>val;
     if (val == 1) {
+        back2:
+        system("cls");
+        cout<<"========Student Menu -> My lessons======"<<endl;
+        fstream file0;
+        file0.open("Lessons_of_student.txt", ios::in);
+        string line10;
+        vector<vector<string> > temp;
+        vector<string> temp2;
+        int count = 1 ;
+        int i = 0 ;
+        while (getline(file0, line10)) {
+            temp2 = splitString(line10);
+            if (temp2.at(0)==current_Id) {
+                temp.push_back(temp2);
+                cout<<count++<<". "<<temp.at(i).at(1)<<temp.at(i).at(2)<<endl;
+                i++;
+            }
+        }
+        cout<<"0. Exit :"<<endl;
+        int val13;
+        cout<<"Choose for more information:"<<endl;
+        cin>>val13;
+        if (val13==0 || val13>count) {
+            goto back;
+        }
+        system("cls");
+        cout<<"========Student Menu -> My lessons======"<<endl;
+        cout<<temp.at(val13-1).at(1)<<": Mid: "<<temp.at(val13-1).at(3)<<" Final: "<<
+            temp.at(val13-1).at(4)<<endl;
+        cout<<"0. Exit :"<<endl;
+        int val4;
+        cin>>val4;
+        goto back2;
 
     }
     if (val == 2) {
@@ -377,16 +467,19 @@ void student_menu() {
         file2.close();
         deleteLine("Lesson.txt",val1);
         file2.open("Lesson.txt", ios::app);
-        // cout<<Leson.at(val1-1).at(0)<<" "<<Leson[val1-1].at(1)<<" "<<Leson[val1-1].at(2)<<" "
-        // <<stoi(Leson[val1-1].at(3))+1<<" "<<Leson[val1-1].at(4)<<" "<<Leson[val1-1].at(5)
-        // <<" "<<Leson[val1-1].at(6)<<endl;
-        // file2.close();
+
         file2<<Leson[val1-1].at(0)<<" "<<Leson[val1-1].at(1)<<" "<<Leson[val1-1].at(2)<<" "
         <<Leson[val1-1].at(3)<<" "<<stoi(Leson[val1-1].at(4))+1<<" "<<Leson[val1-1].at(5)
         <<" "<<Leson[val1-1].at(6)<<endl;
         file2.close();
         cout<<"Lessons have been added"<<endl;
+        _sleep(2000);
+        goto back;
     }
+    if (val ==3){}
+    system("cls");
+    cout<<"Bye!Bye!"<<endl;
+    _sleep(2000);
 }
 bool deleteLine(const string& filename, int lineToDelete) {
     ifstream inputFile(filename);
